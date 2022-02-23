@@ -1,4 +1,39 @@
 {
   "users": [
+    {
+      "id": 1,
+      "points": 10,
+      "q1": true,
+      "q2": false,
+      "q3": false
+    },
+    {
+      "id": 2,
+      "points": 10,
+      "q1": true,
+      "q2": false,
+      "q3": false
+    },
+    {
+      "id": 3,
+      "points": 0,
+      "q1": false,
+      "q2": false,
+      "q3": false
+    },
+    {
+      "id": 4,
+      "points": 0,
+      "q1": false,
+      "q2": false,
+      "q3": false
+    },
+    {
+      "id": 5,
+      "points": 30,
+      "q1": true,
+      "q2": true,
+      "q3": true
+    }
   ]
 }

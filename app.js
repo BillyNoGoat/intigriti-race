@@ -1,8 +1,5 @@
 import { fileURLToPath } from 'url';
-import {
-    join,
-    dirname
-} from 'path'
+import { dirname } from 'path';
 import express from 'express';
 import {
     Low,
@@ -32,7 +29,9 @@ await db.read();
 
 const app = express();
 const port = 3000;
-const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const answers = [{
         questionNum: 1,
@@ -74,7 +73,8 @@ app.use(async (req, res, next) => {
     if ((!req.session.userID && req.path == "/login")) {
         const user = await createNewUser();
         req.session.userID = user.id;
-        req.session.save()
+        await req.session.save();
+        next();
     } else {
         next();
     }
@@ -84,12 +84,14 @@ app.use(async (req, res, next) => {
 //Redirect all requests to welcome if not passed welcome page
 app.use(async (req, res, next) => {
     if(!req.session.userID && !(["/welcome", "/login", "/static/bc87e5124f8d2cfe810d403adc96ad01.gif"].includes(req.path))) {
-        console.log('Unauthed user accessing ' + req.path + ' with id ' + req.session.userID);
         res.redirect('/welcome');
     } else {
         next();
     }
 });
+
+
+
 
 app.post('/submitAnswer', async (req, res) => {
     if (!req.body || !req.body.questionNumber || !req.body.answer) return res.send("Malformed or missing request body");
@@ -105,9 +107,14 @@ app.post('/submitAnswer', async (req, res) => {
     return res.send(result);
 });
 
-// Called when a user hits enter
 app.post('/login', async (req, res) => {
     return res.redirect('/');
+    // if (!req.body || !req.body.name) return "Must provide a name.";
+    // if (!/[A-z]{1,12}/.test(req.body.name)) return "Name must match Regex: /[A-z]{1,12}/";
+    // const user = await createNewUser(req.body.name);
+    // req.session.userID = user.id;
+    // req.session.authenticated = true;
+    // return res.status(200).send(`Your points have been reset to 0.`);
 });
 
 app.post('/reset', async (req, res) => {
@@ -154,7 +161,6 @@ async function completeChallenge(challengeName, id) {
     setTimeout(async () => {
         await setChallengeValue(id, challengeName, true)
     }, 2);
-    // await setChallengeValue(id, challengeName, true)
     return `Correct answer! +10 points!`;
 }
 

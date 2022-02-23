@@ -62,7 +62,6 @@ export function setChallengeValue(userID, challengeName, value) {
 export async function createNewUser(name) {
     const user = {
         "id": db.data.users.length + 1,
-        "name": name,
         "points": 0,
         "q1": false,
         "q2": false,

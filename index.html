@@ -1,0 +1,181 @@
+<html lang="en">
+	<head>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
+			/>
+		<link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+		<style>
+			body {
+			background-image: url('/static/bc87e5124f8d2cfe810d403adc96ad01.gif');
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+			font-family: 'Press Start 2P', cursive;
+			}
+			#box{
+			border-radius: 25px;
+			border: 2px solid;
+			box-shadow: 5px 10px 8px #330033;
+			width: 900px;
+			float:left;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="hero-body">
+		<div class="container has-text-centered">
+			<div class="column is-8 is-offset-2">
+				<div id="box" class="box">
+					<h3 class="title has-text-black">
+						Bugghed Intigriti Quiz
+					</h3>
+					<div class="nes-container with-title is-centered warning">
+						<p class="title">Question 1</p>
+						<label id="question1" class="label">When are new Intigriti XSS challenges released?</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer1" value="weekly" checked />
+						<span>Weekly</span>
+						</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer1" value="monthly" />
+						<span>Monthly</span>
+						</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer1" value="yearly" />
+						<span>Yearly</span>
+						</label>
+						<br>
+                        
+                        <button id="q1btn" onclick="submitAnswer(1)" type="button" class="nes-btn is-primary" align="left"> Submit</button>
+					</div>
+					<br>
+					<div class="nes-container with-title is-centered ">
+						<p class="title">Question 2</p>
+						<label id="question2" class="label">How many speakers are speaking at 1337uplive?</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer2" value="5" checked />
+						<span>5</span>
+						</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer2" value="10" />
+						<span>10</span>
+						</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer2" value="100" />
+						<span>100</span>
+						</label>
+						<br>
+						<button id="q2btn" onclick="submitAnswer(2)" type="button" class="nes-btn is-primary" align="left"> Submit</button>
+					</div>
+					<br>
+					<div class="nes-container with-title is-centered ">
+						<p class="title">Question 3</p>
+						<label id="questionOne" class="label">How long does the1337uplive CTF last?</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer3" value="2" checked />
+						<span>2 hours</span>
+						</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer3" value="12" />
+						<span>12 hours</span>
+						</label>
+						<label>
+						<input type="radio" class="nes-radio" name="answer3" value="24"/>
+						<span>24 hours</span>
+						</label>
+						<br>
+						<button id="q3btn" onclick="submitAnswer(3)" type="button" class="nes-btn is-primary" align="left">Submit</button>
+					</div>
+					<br>
+					<button onclick="buyFlag()" type="button" class="nes-btn is-success"><i class="nes-icon coin is-small"></i> Buy Flag</button>
+					<button onclick="resetPoints()" type="button" class="nes-btn is-error"><i class="nes-icon is-small heart is-full"></i> Reset All Points</button><br><br>
+					<!-- <button onclick="submitFlag('10_point_flag')" type="button" class="nes-btn is-primary" align="left">Reedem_10_Points_Flag</button><br><br>
+						<button onclick="submitFlag('20_point_flag')" type="button" class="nes-btn is-primary" align="left">Reedem_30_Points_Flag</button><br><br>
+						<button onclick="buyFlag()" type="button" class="nes-btn is-success">Buy_The_Supreme_Flag</button>
+						<button onclick="resetPoints()" type="button" class="nes-btn is-error">Reset_All_Points</button><br><br> -->
+					<label id="points" class="label"></label>
+					<div id="message"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		window.addEventListener('load', async (event) => {
+		    const res = await fetch("/user");
+		    const user = await res.json();
+            setPoints(user.points);
+            //Gather up all the questions already completed so we can set the button styling
+            const completedQuestions = [
+                {"question": "q1", "value": user.q1},
+                {"question": "q2", "value": user.q2},
+                {"question": "q3", "value": user.q3}
+            ].filter(q => q.value);
+            completedQuestions.forEach(q => setButtonStyle(q.question, "success"));
+		    setMessage("Welcome back! Your data has been loaded.");
+		});
+		function setMessage(message){
+		    document.querySelector('#message').innerText = message;
+		}
+		function setPoints(n){
+		    document.querySelector('#points').innerText = `Your Points: ${n}`;
+		}
+		async function resetPoints(){
+		    const msg = await (await fetch("/reset", {method: 'POST'})).text();
+            ["q1","q2","q3"].forEach(q => setButtonStyle(q, "primary"));
+		    setMessage(msg);
+		    setPoints(0);
+		};
+		async function buyFlag(){
+		    const msg = await (await fetch("/buyFlag")).text();
+		    setMessage(msg);
+		}
+		async function submitAnswer(qNum){
+            const answer = document.querySelector(`input[name="answer${qNum}"]:checked`).value;
+		    const msg = await (await fetch("/submitAnswer", {
+		        method: 'POST', 
+		        headers: {
+		        'Content-Type': 'application/json'
+		        },
+		        body: JSON.stringify({
+                    questionNumber: qNum,
+                    answer: answer
+                })
+		    })).text();
+            if(msg == "Incorrect answer!"){
+                setButtonStyle(`q${qNum}`, "error");
+            } else if(msg == "Correct answer! +10 points!"){
+                setButtonStyle(`q${qNum}`, "success");
+            }
+            refreshPoints();
+		    setMessage(msg);
+		}
+
+        async function setButtonStyle(qNum, state){
+            const btn = document.querySelector(`#${qNum}btn`);
+            if(!btn) return;
+            if(state == "primary"){
+                btn.className = "nes-btn is-primary"; 
+                btn.innerHTML = 'Submit';
+            } 
+            if(state == "success"){
+                btn.className = "nes-btn is-success";
+                btn.innerHTML = '<i class="nes-icon is-small star"></i> Correct!';
+            }
+            // Don't change from success
+            if(state == "error" && !btn.classList.contains("is-success")) {
+                btn.className = "nes-btn is-error";
+                btn.innerHTML = '<i class="nes-icon close is-small"></i> Submit';
+            } 
+
+        }
+
+        // Ask the server for the user's status and refresh the points
+        async function refreshPoints(){
+            const res = await fetch("/user");
+		    const user = await res.json();
+            setPoints(user.points);
+        }
+	</script>
+</html>

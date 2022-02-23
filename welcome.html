@@ -1,0 +1,68 @@
+<html lang="en">
+	<head>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
+			/>
+		<link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+		<style>
+			body {
+			background-image: url('/static/bc87e5124f8d2cfe810d403adc96ad01.gif');
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover;
+			font-family: 'Press Start 2P', cursive;
+			}
+			#box{
+			border-radius: 25px;
+			border: 2px solid;
+			box-shadow: 5px 10px 8px #330033;
+			width: 900px;
+			float:left;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="hero-body">
+		<div class="container has-text-centered">
+			<div class="column is-8 is-offset-2">
+				<div id="box" class="box">
+					<h3 class="title has-text-black">
+						Intigriti Quiz!
+					</h3>
+					<br>
+                    <div class="nes-container is-rounded">
+                        <p>Welcome to the Intigriti quiz!.</p>
+                        <p>We've created a long list of three questions worth 10 points each for a total of 30 points!</p>
+                        <p>Hopefully we'll add more questions soon so that you can afford to buy the flag</p>
+                        <p>Unless you know a different way?</p>
+                      </div><br>
+                      <h3 class="title has-text-black">
+						What is your name?
+					</h3>
+                    <div class="nes-field">
+                        <label for="name_field">Your name</label>
+                        <input type="text" id="name_field" class="nes-input" style="text-align: center;">
+                      </div><br>
+                      <button onclick="newUser()" type="button" class="nes-btn is-primary">Enter</button>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+<script>
+    async function newUser(){
+        console.log(document.querySelector('#name_field').value);
+        const result = await (await fetch("/newUser", {
+		        method: 'POST', 
+		        headers: {
+		        'Content-Type': 'application/json'
+		        },
+		        body: JSON.stringify({
+                    name: document.querySelector('#name_field').value,
+                })
+		    })).text();
+        }
+</script>

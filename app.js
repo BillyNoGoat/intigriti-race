@@ -1,3 +1,8 @@
+import { fileURLToPath } from 'url';
+import {
+    join,
+    dirname
+} from 'path'
 import express from 'express';
 import {
     Low,
@@ -27,6 +32,7 @@ await db.read();
 
 const app = express();
 const port = 3000;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const answers = [{
         questionNum: 1,
@@ -68,8 +74,7 @@ app.use(async (req, res, next) => {
     if ((!req.session.userID && req.path == "/login")) {
         const user = await createNewUser();
         req.session.userID = user.id;
-        await req.session.save();
-        next();
+        req.session.save()
     } else {
         next();
     }
@@ -85,9 +90,6 @@ app.use(async (req, res, next) => {
         next();
     }
 });
-
-
-
 
 app.post('/submitAnswer', async (req, res) => {
     if (!req.body || !req.body.questionNumber || !req.body.answer) return res.send("Malformed or missing request body");
@@ -124,11 +126,11 @@ app.get('/buyFlag', async (req, res) => {
 });
 
 app.get('/', async (req, res) => {
-    res.sendFile('/Users/billy/Library/Mobile Documents/com~apple~CloudDocs/Projects/intigriti-race/index.html');
+    res.sendFile(`${__dirname}/index.html`);
 });
 
 app.get('/welcome', async (req, res) => {
-    res.sendFile('/Users/billy/Library/Mobile Documents/com~apple~CloudDocs/Projects/intigriti-race/welcome.html');
+    res.sendFile(`${__dirname}/welcome.html`);
 });
 
 app.get('/user', async (req, res) => {

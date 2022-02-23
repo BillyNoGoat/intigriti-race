@@ -63,23 +63,39 @@ app.use((err, req, res, next) => {
     }
 })
 
-
 // Handle new or existing sessions
 app.use(async (req, res, next) => {
-    if (!req.session.userID && !req.url.startsWith('/static')) {
+    if ((!req.session.userID && req.path == "/login")) {
+        console.log("Creating new")
         const user = await createNewUser();
         console.log("Creating new user " + req.session.userID);
-        console.log(req.url);
         req.session.userID = user.id;
+        console.log(req.session.userID);
+        console.log(req.session);
+        await req.session.save();
+        next();
+    } else {
+        next();
     }
-    console.log(req.session.userID);
-    next();
+    
+});
+
+//Redirect all requests to welcome if not passed welcome page
+app.use(async (req, res, next) => {
+    // console.log(req.path);
+    if(!req.session.userID && !(["/welcome", "/login", "/static/bc87e5124f8d2cfe810d403adc96ad01.gif"].includes(req.path))) {
+        console.log('Unauthed user accessing ' + req.path + ' with id ' + req.session.userID);
+        res.redirect('/welcome');
+        // res.status(403).send('Sorry, you are not authorised make this action.\nPlease log-in first at <a href="/welcome">The welcome page</a>');
+    } else {
+        next();
+    }
 });
 
 
+
+
 app.post('/submitAnswer', async (req, res) => {
-    // console.log(req.body);
-    // console.log(answers.find(() => qa.question));
     if (!req.body || !req.body.questionNumber || !req.body.answer) return res.send("Malformed or missing request body");
     const submittedAnswer = req.body.answer;
 
@@ -91,27 +107,11 @@ app.post('/submitAnswer', async (req, res) => {
     const result = await completeChallenge(`q${qa.questionNum}`, req.session.userID);
 
     return res.send(result);
-
-    // if (answer == "10_point_flag") {
-    //     const result = await completeChallenge("completed_first", req.session.userID);
-    //     console.log(result);
-    //     return res.send(result);
-    // } else if (answer === "20_point_flag") {
-    //     const result = await completeChallenge("completed_second", req.session.userID);
-    //     return res.send(result);
-    // } else {
-    //     return res.send('Incorrect answer!');
-    // }
-
 });
 
+// Called when a user hits enter
 app.post('/login', async (req, res) => {
-    if (!req.body || !req.body.name) return "Must provide a name.";
-    if (!/[A-z]{1,12}/.test(req.body.name)) return "Name must match Regex: /[A-z]{1,12}/";
-    const user = await createNewUser(req.body.name);
-    req.session.userID = user.id;
-    req.session.authenticated = true;
-    return res.status(200).send(`Your points have been reset to 0.`);
+    return res.redirect('/');
 });
 
 app.post('/reset', async (req, res) => {
@@ -148,9 +148,6 @@ app.listen(port, () => {
     console.log(`API running at: http://localhost:${port}`);
 });
 
-// challengeName is as it's stored in DB. 
-// completed_first
-// completed_second
 async function completeChallenge(challengeName, id) {
     const completed = await getChallengeComplete(id, challengeName);
     if (completed) return "You already redeemed this flag!";

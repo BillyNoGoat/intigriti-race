@@ -35,16 +35,16 @@
                     <div class="nes-container is-rounded">
                         <p>Welcome to the Intigriti quiz!.</p>
                         <p>We've created a long list of three questions worth 10 points each for a total of 30 points!</p>
-                        <p>Hopefully we'll add more questions soon so that you can afford to buy the flag</p>
+                        <p>Hopefully we'll add more questions soon so that you can afford to buy the flag from the shop.</p>
                         <p>Unless you know a different way?</p>
                       </div><br>
-                      <h3 class="title has-text-black">
+                      <!-- <h3 class="title has-text-black">
 						What is your name?
 					</h3>
                     <div class="nes-field">
                         <label for="name_field">Your name</label>
                         <input type="text" id="name_field" class="nes-input" style="text-align: center;">
-                      </div><br>
+                      </div><br> -->
                       <button onclick="newUser()" type="button" class="nes-btn is-primary">Enter</button>
 				</div>
 			</div>
@@ -54,15 +54,12 @@
 
 <script>
     async function newUser(){
-        console.log(document.querySelector('#name_field').value);
-        const result = await (await fetch("/newUser", {
-		        method: 'POST', 
-		        headers: {
-		        'Content-Type': 'application/json'
-		        },
-		        body: JSON.stringify({
-                    name: document.querySelector('#name_field').value,
-                })
-		    })).text();
+        // console.log(document.querySelector('#name_field').value);
+        const result = await fetch("/login", {
+		        method: 'POST',
+                redirect: 'follow'
+		    }).then((res) => {
+                window.location.href = res.url;
+            })
         }
 </script>

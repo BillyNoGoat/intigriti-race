@@ -66,12 +66,8 @@ app.use((err, req, res, next) => {
 // Handle new or existing sessions
 app.use(async (req, res, next) => {
     if ((!req.session.userID && req.path == "/login")) {
-        console.log("Creating new")
         const user = await createNewUser();
-        console.log("Creating new user " + req.session.userID);
         req.session.userID = user.id;
-        console.log(req.session.userID);
-        console.log(req.session);
         await req.session.save();
         next();
     } else {
@@ -82,11 +78,9 @@ app.use(async (req, res, next) => {
 
 //Redirect all requests to welcome if not passed welcome page
 app.use(async (req, res, next) => {
-    // console.log(req.path);
     if(!req.session.userID && !(["/welcome", "/login", "/static/bc87e5124f8d2cfe810d403adc96ad01.gif"].includes(req.path))) {
         console.log('Unauthed user accessing ' + req.path + ' with id ' + req.session.userID);
         res.redirect('/welcome');
-        // res.status(403).send('Sorry, you are not authorised make this action.\nPlease log-in first at <a href="/welcome">The welcome page</a>');
     } else {
         next();
     }
